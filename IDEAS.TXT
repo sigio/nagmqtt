@@ -64,7 +64,6 @@ receiving the clients messages. Messages received while the server was down migh
 queued by MQTT until the server returned.
 
 
-
 Security
 --------
 
@@ -75,3 +74,26 @@ tampering with the data.
 In a future version a signature and client field could be added, to serve as an authentication
 mechanism. For servers and clients supporting the signature, we can validate that the result
 hasn't been introduced by a rogue client.
+
+
+Requirements
+------------
+
+Receiver: Connect to mqtt, subscribe to one of more topics and receive/parse messages from these
+topics. Translate the messages to the format expected by Nagios/Icinga's command socket, and then
+forward the message to the socket.
+
+Sender: Work as a 'drop-in' replacement for send-nsca, but allow all options to be configured in
+a config-file, so you don't need to specify static information on the commandline.
+
+Either read results from stdin, or allow values to be set on the commandline, as this is easier for
+some platforms (windows), or when called from other programs.
+
+
+
+FUTURE:
+
+Idea's for later
+- Send performance-data to graphite?
+- Allow 'commands' to be sent via a seperate mqtt topic
+
