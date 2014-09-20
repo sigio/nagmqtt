@@ -1,0 +1,63 @@
+Nagios event receiver via MQTT
+==============================
+
+The idea is to have a MQTT client that subscribes to a configurable endpoint for messages.
+These messages are json formatted nagios check results, which nagmqtt wil relay/translate to
+the nagios command socket.
+
+This wat nagmqtt can serve as a replacement for NSCA, which is plagued with incompatible
+versions in the network layer, and will also allow you to have multiple nagios servers, which
+all take up the checkresults, as multiple systems can subscribe to the same endpoint.
+
+JSON allows is to have a text-based network protocol, which is also allows for custom fields
+to be added in subsquent versions.
+
+The base/required fields are:
+ - host: Hostname sending the checkresult
+ - service: Service name the check is for
+ - state: OK/WARNING/CRITICAL/UNKNOWN status of the service
+ - message: Free-form message the check returns
+
+Additionally, the following fields are 'standardized'
+ - perfdata: Optional performance data
+ - timestamp: Time the message was sent
+
+Why replace NSCA
+----------------
+
+NSCA's format has changed in incompatible ways between version 2.4, 2.7 en 2.9.
+Send-nsca doens't know if the message is dropped by the server, and the server doesn't log
+which message is dropped when an incompatible message arrives (not even the source-ip of the
+message).
+
+Nagmqtt would solve this by using JSON, and having optional fields for future enhancements, which
+would not break the protocol for older clients or servers.
+
+NSCA only supports a single encryption method shared between all clients and the server. It's
+not possible to have multiple passwords for multiple clients or environments, which all connect
+to a single server/receiver.
+
+With Nagmqtt we can solve this problem on the MQTT layar, and use multiple usernames/passwords, or
+even use certificates.
+
+When we have multiple Nagios/Icinga servers, we need to either send all the received check results
+from the 'master' server to the other servers, or all clients would need to send the results to
+multiple servers. This is quite a hassle, and is quite error-prone.
+
+With Nagmqtt, a client would only need to send a message once and all Nagios servers could
+receive the update at the same time. A failed master server will not prevent the slave from
+receiving the clients messages. Messages received while the server was down might even be
+queued by MQTT until the server returned.
+
+
+
+Security
+--------
+
+We can use MQTT's security as a baseline, by using the TLS functionality of mqtt to make sure
+only authenticated clients and servers are allowed to ready/write data, and prevent snooping or
+tampering with the data.
+
+In a future version a signature and client field could be added, to serve as an authentication
+mechanism. For servers and clients supporting the signature, we can validate that the result
+hasn't been introduced by a rogue client.
