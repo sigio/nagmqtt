@@ -13,6 +13,7 @@ JSON allows is to have a text-based network protocol, which is also allows for c
 to be added in subsquent versions.
 
 The base/required fields are:
+ - version: Protocol version, currently hardcoded to '1'
  - host: Hostname sending the checkresult
  - service: Service name the check is for
  - state: OK/WARNING/CRITICAL/UNKNOWN status of the service
@@ -21,6 +22,19 @@ The base/required fields are:
 Additionally, the following fields are 'standardized'
  - perfdata: Optional performance data
  - timestamp: Time the message was sent
+
+Example JSON:
+
+{
+    "version": "1",
+    "host": "prod-web1",
+    "service": "cpu-load",
+    "state": "WARNING",
+    "message": "Cpu load high > 90%",
+    "perfdata": "92.12",
+    "timestamp": "1411220019.711785664"
+} 
+
 
 Why replace NSCA
 ----------------
